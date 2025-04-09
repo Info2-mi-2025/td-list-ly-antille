@@ -40,47 +40,130 @@ void init_file()
 
 
 
-typedef struct Node
-{
+typedef struct Node {
     int value;
     struct Node* next;
 } Node;
 
-typedef struct
-{
+typedef struct {
     Node* head;
     Node* tail;
 } List;
 
+
+
 // Fonctions de base
-void append(List* list, int value)
-{
+int count(List* list) {
+    int count = 0;
+    Node* current = list->head;
+    
+    while (current != NULL) {
+        count++;
+        current = current->next;
+    }
+
+    return count;
 }
 
-void free_list(List* list)
-{
+void append(List* list, int value) {
+    if (list == NULL || list->head == NULL) {
+        exit(1);
+    }
+
+    // Création du nouveau noeud 
+    Node* new_node = malloc(sizeof(Node));
+    new_node->next = NULL;
+    new_node->value = value;
+
+    // La liste est vide
+    if (list->head == NULL) {
+        list->head = new_node;
+    }
+    else {
+        list->tail->next = new_node;
+    }
+    list->tail = new_node;
 }
 
-void print_list(const List* list)
-{
+void free_list(List* list) {
+    free(list);
 }
 
-void reverse_list(List* list)
-{
+void print_list(const List* list) {
+    Node* current = list->head;
+    printf("Liste : ");
+
+    while (current != NULL) {
+        printf(" %d", current->value);
+
+        if (current->next != NULL) {
+            printf(" ->");
+        }
+        current = current->next;
+    }
 }
 
-int sum_list(const List* list)
-{
+void reverse_list(List* list) {
+    int count = 0;
+    Node* current = list->head;
+    
+    while (current != NULL) {
+        count++;
+        current = current->next;
+    }
+    
+    int* temp = malloc (count * sizeof(int));
+    current = list->head;
+
+    for (int i=0; i<count; i++) {
+        temp[i] = current->value;
+        current = current->next;
+    }
+
+    current = list->head;
+
+    for (int i= count - 1; i >= 0; i--) {
+        current->value = temp[i];
+        current = current->next;
+    }
+
+    free(temp);
+}
+
+int sum_list(const List* list) {
+    Node* current = list->head;
+    int sum = 0;
+
+    while (current != NULL) {
+        sum += current->value;
+        current = current->next;
+    }
     return 0;
 }
 
-int min_list(const List* list)
-{
+int min_list(const List* list) {
+    Node* current = list->head;
+    int min = current->value;
+
+    while (current != NULL) {
+        if (current->value < min) {
+            min = current->value;
+        }
+        current = current->next;
+    }
     return 0;
 }
 
-int max_list(const List* list)
-{
+int max_list(const List* list) {
+    Node* current = list->head;
+    int max = current->value;
+
+    while (current != NULL) {
+        if (current->value > max) {
+            max = current->value;
+        }
+        current = current->next;
+    }
     return 0;
 }
 
@@ -100,6 +183,11 @@ void help()
     printf("  --version, -v     Affiche la version du programme\n");
     printf("  --min             Affiche la valeur minimale de la liste\n");
     printf("  --max             Affiche la valeur maximale de la liste\n");
+}
+
+void version(FILE *fp) {
+    fprintf(fp, "Version 0.0.1"
+                "Copyright(c) HEIG-VD\n");
 }
 
 // Lecture fichier
@@ -129,8 +217,43 @@ int main(int argc, char* argv[])
     // Ne pas modifier
     init_file();
     // ---------------
+    bool option_add = false;
+    bool option_filter = false;
 
-    if(argc < 2) return 1;
+    if(argc < 2) {
+        return 1;
+    }
+
+    for (int i=0; i<argc; i++) {
+        if (strcmp(argv[i], "--add") == 0) {
+            option_add = true;
+        }
+        else if (strcmp(argv[i], "--help") == 0) {
+            help();
+            return 0;
+        }
+        else if (strcmp(argv[i], "--filter") == 0) {
+            int value = 0;
+            if (sscanf("--filter%d", &value) == 1) {
+                value = 0;
+            }
+        }
+        else if (strcmp(argv[i], "--reverse") == 0) {
+            // reverse_list();
+        }
+        else if (strcmp(argv[i], "--sum") == 0) {
+            // sum_list();
+        }
+        else if (strcmp(argv[i], "--min") == 0) {
+            // min_list();
+        }
+        else if (strcmp(argv[i], "--max") == 0) {
+            // max_list();
+        }
+        /*else if (sscanf("--filter%d", &value_filter) == 1) {
+            option_filter = true;
+        }*/
+    }
     
     return 0;
 }
