@@ -66,7 +66,7 @@ int count(List* list) {
 }
 
 void append(List* list, int value) {
-    if (list == NULL || list->head == NULL) {
+    if (list == NULL) {
         exit(1);
     }
 
