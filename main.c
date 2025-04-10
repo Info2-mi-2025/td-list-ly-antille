@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 // Ne pas modifier
 void init_file()
 {
@@ -53,25 +54,12 @@ typedef struct {
 
 
 // Fonctions de base
-int count(List* list) {
-    int count = 0;
-    Node* current = list->head;
-    
-    while (current != NULL) {
-        count++;
-        current = current->next;
-    }
-
-    return count;
-}
-
 void append(List* list, int value) {
     if (list == NULL) {
         exit(1);
     }
 
-    // Création du nouveau noeud 
-    Node* new_node = malloc(sizeof(Node));
+    Node* new_node = (Node*)malloc(sizeof(Node));
     new_node->next = NULL;
     new_node->value = value;
 
@@ -120,7 +108,7 @@ void reverse_list(List* list) {
         current = current->next;
     }
     
-    int* temp = malloc (count * sizeof(int));
+    int* temp = (int*)malloc(count * sizeof(int));
     current = list->head;
 
     for (int i=0; i<count; i++) {
@@ -146,6 +134,7 @@ int sum_list(const List* list) {
         sum += current->value;
         current = current->next;
     }
+
     return sum;
 }
 
@@ -159,6 +148,7 @@ int min_list(const List* list) {
         }
         current = current->next;
     }
+
     return min;
 }
 
@@ -172,6 +162,7 @@ int max_list(const List* list) {
         }
         current = current->next;
     }
+
     return max;
 }
 
@@ -211,8 +202,7 @@ void filter_list(List* list, int threshold) {
     }
 }
 
-void help()
-{
+void help() {
     printf("Utilisation : ./app <fichier> [options]\n\n");
     printf("Options disponibles :\n");
     printf("  --reverse         Inverse l'ordre des éléments\n");
@@ -229,36 +219,37 @@ void version() {
     printf("version 1.0\n");
 }
 
-// Lecture fichier
-bool read_file(const char* filename, List* list)
-{
+bool read_file(const char* filename, List* list) {
     FILE* f = fopen(filename, "r");
-    if (!f) return false;
+    if (!f) {
+        return false;
+    }
+
     int value;
     
-    while (fscanf(f, "%d", &value) == 1) append(list, value);
+    while (fscanf(f, "%d", &value) == 1) {
+        append(list, value);
+    }
     
     fclose(f);
     return true;
 }
 
-bool add_to_file(const char* filename, int value)
-{
+bool add_to_file(const char* filename, int value) {
     FILE* f = fopen(filename, "a");
-    if (!f) return false;
+    if (!f) {
+        return false;
+    }
+
     fprintf(f, "%d\n", value);
     fclose(f);
     return true;
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     // Ne pas modifier
     init_file();
     // ---------------
-
-    bool option_add = false;
-    bool option_filter = false;
 
     if (argc < 2 || strncmp(argv[1], "--", 2) == 0) {
         return 1; 
@@ -269,7 +260,7 @@ int main(int argc, char* argv[])
     List* list = (List*)malloc(sizeof(List));
     list->head = list->tail = NULL;
 
-    if(!read_file(filename, list)) {
+    if (!read_file(filename, list)) {
         free(list);
         return 2;
     }
@@ -301,7 +292,8 @@ int main(int argc, char* argv[])
             if (i + 1 < argc) {
                 int val = atoi(argv[++i]);
                 filter_list(list, val);
-            } else {
+            } 
+            else {
                 fprintf(stderr, "Erreur! Valeur manquante pour --filter!\n");
                 free_list(list);
                 return 1;
@@ -314,17 +306,20 @@ int main(int argc, char* argv[])
                     printf("Valeur %d ajoutée au fichier.\n", val);
                     free_list(list);
                     return 0;
-                } else {
+                } 
+                else {
                     fprintf(stderr, "Erreur lors de l'ajout au fichier.\n");
                     free_list(list);
                     return 2;
                 }
-            } else {
+            } 
+            else {
                 fprintf(stderr, "Erreur! Valeur manquante pour --add!\n");
                 free_list(list);
                 return 1;
             }
-        } else {
+        } 
+        else {
             fprintf(stderr, "Option inconnue : %s\n", argv[i]);
             free_list(list);
             return 1;
