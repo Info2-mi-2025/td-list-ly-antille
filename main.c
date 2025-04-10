@@ -175,8 +175,40 @@ int max_list(const List* list) {
     return max;
 }
 
-void filter_list(List* list, int threshold)
-{
+void filter_list(List* list, int threshold) {
+    Node* current = list->head;
+    Node* prev = NULL;
+
+    while (current != NULL) {
+        if (current->value < threshold) {
+            Node *to_delete = current;
+
+            if (prev == NULL) {
+                list->head = current->next;
+            }
+            else {
+                prev->next = current->next;
+            }
+
+            current = current->next;
+            free(to_delete);
+        }
+        else {
+            prev = current;
+            current = current->next;
+        }
+    }
+
+    list->tail = NULL;
+    current = list->head;
+
+    while (current != NULL) {
+        if (current->next == NULL) {
+            list->tail = current;
+        }
+
+        current = current->next;
+    }
 }
 
 void help()
@@ -193,9 +225,8 @@ void help()
     printf("  --max             Affiche la valeur maximale de la liste\n");
 }
 
-void version(FILE *fp) {
-    fprintf(fp, "Version 0.0.1"
-                "Copyright(c) HEIG-VD\n");
+void version() {
+    printf("version 1.0\n");
 }
 
 // Lecture fichier
@@ -226,13 +257,14 @@ int main(int argc, char* argv[])
     init_file();
     // ---------------
 
-    const char* filename = argv[1];
     bool option_add = false;
     bool option_filter = false;
 
-    if(argc < 2) {
-        return 1;
+    if (argc < 2 || strncmp(argv[1], "--", 2) == 0) {
+        return 1; 
     }
+
+    const char* filename = argv[1];
 
     List* list = (List*)malloc(sizeof(List));
     list->head = list->tail = NULL;
@@ -242,38 +274,65 @@ int main(int argc, char* argv[])
         return 2;
     }
 
-    for (int i=0; i<argc; i++) {
-        if (strcmp(argv[i], "--add") == 0) {
-            option_add = true;
-        }
-        else if (strcmp(argv[i], "--help") == 0) {
+    for (int i = 2; i < argc; i++) {
+        if (strcmp(argv[i], "--help") == 0) {
             help();
+            free_list(list);
             return 0;
-        }
-        /*else if (strcmp(argv[i], "--filter") == 0) {
-            int value = 0;
-            if (sscanf("--filter%d", &value) == 1) {
-                value = 0;
-            }
-        }*/
+        } 
+        else if (strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
+            version();
+            free_list(list);
+            return 0;
+        } 
         else if (strcmp(argv[i], "--reverse") == 0) {
             reverse_list(list);
-        }
+        } 
         else if (strcmp(argv[i], "--sum") == 0) {
-            sum_list(list);
-        }
+            printf("Somme : %d\n", sum_list(list));
+        } 
         else if (strcmp(argv[i], "--min") == 0) {
-            min_list(list);
-        }
+            printf("Minimum : %d\n", min_list(list));
+        } 
         else if (strcmp(argv[i], "--max") == 0) {
-            max_list(list);
+            printf("Maximum : %d\n", max_list(list));
+        } 
+        else if (strcmp(argv[i], "--filter") == 0) {
+            if (i + 1 < argc) {
+                int val = atoi(argv[++i]);
+                filter_list(list, val);
+            } else {
+                fprintf(stderr, "Erreur! Valeur manquante pour --filter!\n");
+                free_list(list);
+                return 1;
+            }
+        } 
+        else if (strcmp(argv[i], "--add") == 0) {
+            if (i + 1 < argc) {
+                int val = atoi(argv[++i]);
+                if (add_to_file(filename, val)) {
+                    printf("Valeur %d ajoutée au fichier.\n", val);
+                    free_list(list);
+                    return 0;
+                } else {
+                    fprintf(stderr, "Erreur lors de l'ajout au fichier.\n");
+                    free_list(list);
+                    return 2;
+                }
+            } else {
+                fprintf(stderr, "Erreur! Valeur manquante pour --add!\n");
+                free_list(list);
+                return 1;
+            }
+        } else {
+            fprintf(stderr, "Option inconnue : %s\n", argv[i]);
+            free_list(list);
+            return 1;
         }
-        /*else if (sscanf("--filter%d", &value_filter) == 1) {
-            option_filter = true;
-        }*/
-    }
+    }    
     
     print_list(list);
+    printf("\n");
 
     free_list(list);
 
