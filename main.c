@@ -86,7 +86,15 @@ void append(List* list, int value) {
 }
 
 void free_list(List* list) {
-    free(list);
+    Node* current = list->head;
+
+    while (current != NULL) {
+        Node* next = current->next;
+        free(current);
+        current = next;
+    }
+
+    free(list);    
 }
 
 void print_list(const List* list) {
@@ -138,7 +146,7 @@ int sum_list(const List* list) {
         sum += current->value;
         current = current->next;
     }
-    return 0;
+    return sum;
 }
 
 int min_list(const List* list) {
@@ -151,7 +159,7 @@ int min_list(const List* list) {
         }
         current = current->next;
     }
-    return 0;
+    return min;
 }
 
 int max_list(const List* list) {
@@ -164,7 +172,7 @@ int max_list(const List* list) {
         }
         current = current->next;
     }
-    return 0;
+    return max;
 }
 
 void filter_list(List* list, int threshold)
@@ -217,11 +225,21 @@ int main(int argc, char* argv[])
     // Ne pas modifier
     init_file();
     // ---------------
+
+    const char* filename = argv[1];
     bool option_add = false;
     bool option_filter = false;
 
     if(argc < 2) {
         return 1;
+    }
+
+    List* list = (List*)malloc(sizeof(List));
+    list->head = list->tail = NULL;
+
+    if(!read_file(filename, list)) {
+        free(list);
+        return 2;
     }
 
     for (int i=0; i<argc; i++) {
@@ -232,28 +250,32 @@ int main(int argc, char* argv[])
             help();
             return 0;
         }
-        else if (strcmp(argv[i], "--filter") == 0) {
+        /*else if (strcmp(argv[i], "--filter") == 0) {
             int value = 0;
             if (sscanf("--filter%d", &value) == 1) {
                 value = 0;
             }
-        }
+        }*/
         else if (strcmp(argv[i], "--reverse") == 0) {
-            // reverse_list();
+            reverse_list(list);
         }
         else if (strcmp(argv[i], "--sum") == 0) {
-            // sum_list();
+            sum_list(list);
         }
         else if (strcmp(argv[i], "--min") == 0) {
-            // min_list();
+            min_list(list);
         }
         else if (strcmp(argv[i], "--max") == 0) {
-            // max_list();
+            max_list(list);
         }
         /*else if (sscanf("--filter%d", &value_filter) == 1) {
             option_filter = true;
         }*/
     }
     
-    return 0;
+    print_list(list);
+
+    free_list(list);
+
+    return 0;       
 }
